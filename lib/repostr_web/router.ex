@@ -20,7 +20,8 @@ defmodule RepostrWeb.Router do
     pipe_through :browser
 
     live "/", HomeLive
-    get "/logout", NostrAuthController, :logout
+    # Route to clear session after JS-initiated logout
+    get "/clear-session", SessionController, :clear
   end
 
   scope "/api", RepostrWeb.Api do

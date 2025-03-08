@@ -26,9 +26,29 @@ import { initNostrLogin } from './nostr_login';
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute('content');
+
+// Define hooks for LiveView
+const Hooks = {
+  NostrAuth: {
+    mounted() {
+      // Listen for the nostr-logout event from LiveView
+      this.handleEvent("nostr-logout", () => {
+        console.log("Received logout event from LiveView");
+        // Trigger nostr-login logout
+        document.dispatchEvent(new Event("nlLogout"));
+        // Redirect to session clear endpoint after a short delay
+        setTimeout(() => {
+          window.location.href = "/clear-session";
+        }, 500);
+      });
+    }
+  }
+};
+
 let liveSocket = new LiveSocket('/live', Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
+  hooks: Hooks
 });
 
 // Show progress bar on live navigation and form submits

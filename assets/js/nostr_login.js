@@ -14,19 +14,29 @@ export function initNostrLogin() {
     });
   });
 
+  // Listen for direct logout event from LiveView or other sources
+  document.addEventListener('nlLogout', () => {
+    console.log('Received direct nlLogout event');
+    sessionStorage.removeItem('nostrAuthHandled');
+    // Dispatch this to nostr-login as well
+    document.dispatchEvent(
+      new CustomEvent('nlAuth', { detail: { type: 'logout' } })
+    );
+  });
+
   document.addEventListener('nlAuth', async (e) => {
     // Prevent handling the same auth event multiple times
     if (authHandled) {
       console.log('Auth already handled, skipping');
       return;
     }
-    
+
     // Handle login or signup events
     if (e.detail.type === 'login' || e.detail.type === 'signup') {
       try {
         // Set flag to prevent multiple auth attempts
         authHandled = true;
-        
+
         // Get the public key from the window.nostr
         const pubkey = await window.nostr.getPublicKey();
         console.log('Authenticated with pubkey:', pubkey);
@@ -34,6 +44,7 @@ export function initNostrLogin() {
         // Send the pubkey to the server to create a session
         const response = await fetch('/api/v1/nostr/auth', {
           method: 'POST',
+          credentials: 'same-origin', // Important: Include cookies with the request
           headers: {
             'Content-Type': 'application/json',
             'X-CSRF-Token': document
@@ -57,6 +68,7 @@ export function initNostrLogin() {
         if (response.ok) {
           // Authentication successful - store in session storage and reload
           sessionStorage.setItem('nostrAuthHandled', 'true');
+
           window.location.reload();
         } else {
           console.log(response);
@@ -72,9 +84,9 @@ export function initNostrLogin() {
         authHandled = false;
       }
     } else if (e.detail.type === 'logout') {
-      // Handle logout, clear auth handled state
+      // Clear auth state when logout event is received from nostr-login
       sessionStorage.removeItem('nostrAuthHandled');
-      window.location.href = '/logout';
+      // Client-side navigation is handled in the LiveView hook
     }
   });
 }
