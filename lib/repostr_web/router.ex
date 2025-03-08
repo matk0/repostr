@@ -12,12 +12,23 @@ defmodule RepostrWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+
+    plug :fetch_session
   end
 
   scope "/", RepostrWeb do
     pipe_through :browser
 
     live "/", HomeLive
+    get "/logout", NostrAuthController, :logout
+  end
+
+  scope "/api", RepostrWeb.Api do
+    pipe_through :api
+
+    scope "/v1", V1 do
+      post "/nostr/auth", NostrAuthController, :login
+    end
   end
 
   # Other scopes may use custom stacks.

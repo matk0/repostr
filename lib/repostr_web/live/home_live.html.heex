@@ -1,7 +1,31 @@
-<h1 class="text-3xl font-bold text-gray-900 mb-4 tracking-tight">Hello!</h1>
-<button
-  id="nostr-login-button"
-  class="px-4 py-2 bg-black hover:bg-gray-800 text-white font-medium rounded transition-colors duration-200 shadow-sm flex items-center justify-center"
->
-  <span>Login to Nostr</span>
-</button>
+<div class="p-6 max-w-lg mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 mb-4 tracking-tight">Hello!</h1>
+
+  <%= if @logged_in do %>
+    <div class="mt-6 bg-gray-100 p-4 rounded-lg">
+      <h2 class="text-xl font-medium text-gray-800 mb-2">Welcome Nostr User!</h2>
+      <p class="text-gray-600 mb-2">You're signed in with your Nostr public key:</p>
+      <div class="bg-white p-2 rounded border border-gray-300 font-mono text-xs
+  break-all">
+        {@user_pubkey}
+      </div>
+
+      <div class="mt-4">
+        <a href="/logout" class="text-purple-600 hover:text-purple-800 font-medium">Sign
+          Out</a>
+      </div>
+    </div>
+  <% else %>
+    <div class="mt-8">
+      <button
+        id="nostr-login-button"
+        class="w-full bg-purple-600 text-white font-semibold py-2 px-4 rounded
+  hover:bg-purple-700 transition duration-200"
+      >
+        <div class="flex items-center justify-center">
+          Sign in
+        </div>
+      </button>
+    </div>
+  <% end %>
+</div>
